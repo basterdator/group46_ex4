@@ -27,7 +27,7 @@
     <ClCompile Include="ServerSocket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Shared\Shared.c">
+    <ClCompile Include="..\Shared\SendRecvTools.c">
       <Filter>Shared Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,7 +35,10 @@
     <ClInclude Include="ServerSocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Shared\Shared.h">
+    <ClInclude Include="..\Shared\SocketShared.h">
+      <Filter>Shared Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\SendRecvTools.h">
       <Filter>Shared Headers</Filter>
     </ClInclude>
   </ItemGroup>

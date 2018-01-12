@@ -7,13 +7,16 @@ by Amnon Drory.
 */
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
-#ifndef CLIENT_SOCKET_H
-#define CLIENT_SOCKET_H
+#ifndef SOCKET_SHARED_H
+#define SOCKET_SHARED_H
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-#include <stdio.h>
-#include <string.h>
-void MainClient(char *path, char *server_ip, char *server_port_char, char *username);
+
+#define SERVER_ADDRESS_STR "127.0.0.1"
+#define SERVER_PORT 2345
+
+#define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
+
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
-#endif // CLIENT_SOCKET_H
+#endif // SOCKET_SHARED_H
