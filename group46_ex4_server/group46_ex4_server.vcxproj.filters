@@ -13,5 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shared Sources">
+      <UniqueIdentifier>{123c6711-05b7-493f-a685-3513259d5e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shared Headers">
+      <UniqueIdentifier>{4d1ef1f6-19f3-4b33-bc67-0cd9edfc3813}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="server_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerSocket.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Shared.c">
+      <Filter>Shared Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ServerSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Shared.h">
+      <Filter>Shared Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
