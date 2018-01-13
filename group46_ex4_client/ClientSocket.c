@@ -11,6 +11,7 @@ Last updated by Amnon Drory, Winter 2011.
 
 #include <winsock2.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "SocketShared.h"
 #include "SendRecvTools.h"
@@ -70,7 +71,10 @@ static DWORD MsgThread(LPVOID lpParam)
 	//so it happens automatically as the message thread starts up ****************************************
 	char *username;
 	username = (char *)lpParam;
-	SendRes = SendString(username, m_socket);
+	char *first_msg = NULL;
+	cnctnt("NEW_USER_REQUEST:", username, &first_msg);
+	cnctnt(first_msg, "\n", &first_msg);
+	SendRes = SendString(first_msg, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
@@ -294,3 +298,30 @@ static void ReportErrorAndEndProgram()
 	printf("PrintToRePortFile error, ending program. Last Error = 0x%x\n", GetLastError());
 	exit(1);
 }
+
+int cnctnt(char *source1, char *source2, char **p_dest)
+{
+	int i, j;
+	int size1 = strlen(source1);
+	int size2 = strlen(source2);
+	int size3 = sizeof(char)*(size1 + size2);
+	char *dest = (char*)calloc(size3+1,sizeof(char));
+	if (dest == NULL) {
+		return(-1);
+	}
+	for (i = 0; i < size1; ++i)
+	{
+		dest[i] = source1[i];
+		//printf("%s\n", dest);
+	}
+	for (j = 0; j < size2; ++j)
+	{
+		dest[i+j] = source2[j];
+		//printf("%s\n", dest);
+
+	}
+	//dest[i + j] = '\0';
+	*p_dest = dest;
+	return 0;
+}
+
