@@ -15,7 +15,7 @@ by Amnon Drory.
 #include <string.h>
 void MainClient(char *path, char *server_ip, char *server_port_char, char *username);
 int cnctnt(char *source1, char *source2, char **p_dest);
-
+void print_msg(char *msg);
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 #endif // CLIENT_SOCKET_H

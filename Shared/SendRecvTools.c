@@ -48,8 +48,9 @@ TransferResult_t SendString(const char *Str, SOCKET sd)
 	/* The request is sent in two parts. First the Length of the string (stored in
 	an int variable ), then the string itself. */
 
-	TotalStringSizeInBytes = (int)(strlen(Str) + 1); // terminating zero also sent	
-
+	//TotalStringSizeInBytes = (int)(strlen(Str) + 1); // terminating zero also sent	
+	TotalStringSizeInBytes = (int)(strlen(Str)+1);
+	printf("SendString wants to send %d chars\n", TotalStringSizeInBytes);
 	SendRes = SendBuffer(
 		(const char *)(&TotalStringSizeInBytes),
 		(int)(sizeof(TotalStringSizeInBytes)), // sizeof(int) 
@@ -96,7 +97,7 @@ TransferResult_t ReceiveBuffer(char* OutputBuffer, int BytesToReceive, SOCKET sd
 
 TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 {
-	/* Recv the the request to the server on socket sd */
+	/* Recv the request to the server on socket sd */
 	int TotalStringSizeInBytes;
 	TransferResult_t RecvRes;
 	char* StrBuffer = NULL;
@@ -120,7 +121,7 @@ TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 
 	if (RecvRes != TRNS_SUCCEEDED) return RecvRes;
 
-	StrBuffer = (char*)malloc(TotalStringSizeInBytes * sizeof(char));
+	StrBuffer = (char*)calloc(TotalStringSizeInBytes,sizeof(char));
 
 	if (StrBuffer == NULL)
 		return TRNS_FAILED;

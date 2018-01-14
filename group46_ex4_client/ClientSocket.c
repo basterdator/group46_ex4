@@ -72,9 +72,11 @@ static DWORD MsgThread(LPVOID lpParam)
 	char *username;
 	username = (char *)lpParam;
 	char *first_msg = NULL;
-	cnctnt("NEW_USER_REQUEST:", username, &first_msg);
-	cnctnt(first_msg, "\n", &first_msg);
-	SendRes = SendString(first_msg, m_socket);
+	cnctnt("NEW_USER_REQUEST:", "anton\n", &first_msg);
+	//cnctnt(first_msg, "\n", &first_msg);
+//	print_msg(first_msg);
+//	printf("\n");
+	SendRes = SendString("NEW_USER_REQUEST:anton\n", m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
@@ -320,8 +322,18 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 		//printf("%s\n", dest);
 
 	}
-	//dest[i + j] = '\0';
+	dest[i + j] = '\0';
 	*p_dest = dest;
 	return 0;
 }
 
+
+void print_msg(char *msg)
+{
+	int i = 0;
+	while (msg[i] != '\n')
+	{
+		printf("%c", msg[i]);
+		++i;
+	}
+}

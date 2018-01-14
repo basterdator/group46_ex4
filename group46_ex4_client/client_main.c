@@ -4,13 +4,14 @@
 int main(int argc, char *argv[])
 {	
 
-	//char string1[] = "yay it ";
-	//char string2[] = "works";
+	//char string1[] = "msg:";
+	//char string2[] = "anton\n";
 	//char *string3 = NULL;
 	//cnctnt(string1, string2, &string3);
+
 	//printf("%s\n", string3);
-	//cnctnt(string3, "\n", &string3);
-	//printf("%s\n", string3);
+	//print_msg(string3);
+
 	if (argc == 5)
 	{
 		// === The next few lines delete the existing data in the log file ===
