@@ -19,6 +19,7 @@ Last updated by Amnon Drory, Winter 2011.
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 char SendStr[256];
+int gnrt_msg_rslt;
 static HANDLE h_message;
 static HANDLE h_input;
 static void ReportErrorAndEndProgram();
@@ -47,12 +48,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 
 		if (RecvRes == TRNS_FAILED)
 		{
-			printf("Socket error while trying to write data to socket\n");
+			printf("Server disconnected. Exiting\n");
 			return 0x555;
 		}
 		else if (RecvRes == TRNS_DISCONNECTED)
 		{
-			printf("Server closed connection. Bye!\n");
+			printf("Server disconnected. Exiting\n");
 			return 0x555;
 		}
 		else
@@ -98,14 +99,29 @@ static DWORD MsgThread(LPVOID lpParam)
 	{
 		wait_res = WaitForSingleObject(h_message, INFINITE);
 		if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
-
-		SendRes = SendString(SendStr, m_socket);
-
-		if (SendRes == TRNS_FAILED)
+		
+		char *p_SendMsg = NULL;
+		gnrt_msg_rslt = generate_msg(SendStr, &p_SendMsg);
+		if (gnrt_msg_rslt == 0)
 		{
-			printf("Socket error while trying to write data to socket\n");
+			SendRes = SendString(p_SendMsg, m_socket);
+
+			if (SendRes == TRNS_FAILED)
+			{
+				printf("Socket error while trying to write data to socket\n");
+				return 0x555;
+			}
+		}
+		else if (gnrt_msg_rslt == 1)
+		{
+			release_res = ReleaseSemaphore(
+				h_input,
+				1,
+				NULL);
+			if (release_res == FALSE) ReportErrorAndEndProgram();
 			return 0x555;
 		}
+		
 
 		release_res = ReleaseSemaphore(
 			h_input,
@@ -123,7 +139,7 @@ static DWORD InputThread(void)
 	DWORD wait_res;
 	BOOL release_res;
 
-	while (1)
+	while (gnrt_msg_rslt != 1)
 	{	
 		gets_s(SendStr, sizeof(SendStr)); //Reading a string from the keyboard
 
@@ -136,6 +152,7 @@ static DWORD InputThread(void)
 		wait_res = WaitForSingleObject(h_input, INFINITE);
 		if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
 	}
+	return 0x555;
 }
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
@@ -258,7 +275,7 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 	);
 
 
-	WaitForMultipleObjects(2, hThread, FALSE, INFINITE);
+	WaitForMultipleObjects(3, hThread, FALSE, INFINITE);
 
 	TerminateThread(hThread[0], 0x555);
 	TerminateThread(hThread[1], 0x555);
@@ -267,6 +284,11 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 	CloseHandle(hThread[0]);
 	CloseHandle(hThread[1]);
 	CloseHandle(hThread[2]);
+	CloseHandle(h_message);
+	CloseHandle(h_input);
+
+
+
 
 	closesocket(m_socket);
 
@@ -435,6 +457,80 @@ int find_char(char *string, char c, int start_from) {
 			return -1;
 		}
 		i++;
+	}
+
+}
+
+int generate_msg(char *input, char **output)
+{
+	if (STRINGS_ARE_EQUAL(input, "players"))
+	{
+		*output = "USER_LIST_QUERY\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "state"))
+	{
+		*output = "GAME_STATE_QUERY\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "board"))
+	{
+		*output = "BOARD_VIEW_QUERY\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 1 1"))
+	{
+		*output = "PLAY_REQUEST:1;1\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 1 2"))
+	{
+		*output = "PLAY_REQUEST:1;2\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 1 3"))
+	{
+		*output = "PLAY_REQUEST:1;3\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 2 1"))
+	{
+		*output = "PLAY_REQUEST:2;1\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 2 2"))
+	{
+		*output = "PLAY_REQUEST:2;2\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 2 3"))
+	{
+		*output = "PLAY_REQUEST:2;3\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 3 1"))
+	{
+		*output = "PLAY_REQUEST:3;1\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 3 2"))
+	{
+		*output = "PLAY_REQUEST:3;2\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "play 3 3"))
+	{
+		*output = "PLAY_REQUEST:3;3\n";
+		return 0;
+	}
+	else if (STRINGS_ARE_EQUAL(input, "exit"))
+	{
+		return 1;
+	} 
+	else 
+	{
+		printf("Error: Illegal command\n");
+		return -1;
 	}
 
 }
