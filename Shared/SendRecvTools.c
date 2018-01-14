@@ -50,7 +50,7 @@ TransferResult_t SendString(const char *Str, SOCKET sd)
 
 	//TotalStringSizeInBytes = (int)(strlen(Str) + 1); // terminating zero also sent	
 	TotalStringSizeInBytes = (int)(strlen(Str)+1);
-	printf("SendString wants to send %d chars\n", TotalStringSizeInBytes);
+	//printf("SendString wants to send %d chars\n", TotalStringSizeInBytes);
 	SendRes = SendBuffer(
 		(const char *)(&TotalStringSizeInBytes),
 		(int)(sizeof(TotalStringSizeInBytes)), // sizeof(int) 

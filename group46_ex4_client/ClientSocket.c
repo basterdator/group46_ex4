@@ -29,14 +29,21 @@ static char *send_char;
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 //Reading data coming from the server
-static DWORD RecvDataThread(void)
+static DWORD RecvDataThread(LPVOID lpParam)
 {
+	char *path;
+	path = (char *)lpParam;
 	TransferResult_t RecvRes;
 
 	while (1)
 	{
 		char *AcceptedStr = NULL;
+		//char *MSG_type = NULL;
+		//char *param1 = NULL;
+		//char *param2 = NULL;
+		//char *param3 = NULL;
 		RecvRes = ReceiveString(&AcceptedStr, m_socket);
+
 
 		if (RecvRes == TRNS_FAILED)
 		{
@@ -51,6 +58,12 @@ static DWORD RecvDataThread(void)
 		else
 		{
 			printf("%s\n", AcceptedStr);
+		/*	ParseMessage(AcceptedStr, &MSG_type, &param1, &param2, &param3);
+			if (STRINGS_ARE_EQUAL(MSG_type, "NEW_USER_DECLINED"))
+			{
+				printf("Request to join was refused\n");
+				PrintToLogFile("Request to join was refused\n", path);
+			}*/
 		}
 
 		free(AcceptedStr);
@@ -61,7 +74,7 @@ static DWORD RecvDataThread(void)
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
-//Sending data to the server
+// Handling messeges: getting the input from the user, generating the right messege and sending it to the server
 static DWORD MsgThread(LPVOID lpParam)
 {
 	DWORD wait_res;
@@ -72,11 +85,9 @@ static DWORD MsgThread(LPVOID lpParam)
 	char *username;
 	username = (char *)lpParam;
 	char *first_msg = NULL;
-	cnctnt("NEW_USER_REQUEST:", "anton\n", &first_msg);
-	//cnctnt(first_msg, "\n", &first_msg);
-//	print_msg(first_msg);
-//	printf("\n");
-	SendRes = SendString("NEW_USER_REQUEST:anton\n", m_socket);
+	cnctnt("NEW_USER_REQUEST:", username, &first_msg);
+	cnctnt(first_msg, "\n", &first_msg);
+	SendRes = SendString(first_msg, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
@@ -106,8 +117,8 @@ static DWORD MsgThread(LPVOID lpParam)
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
-//Sending data to the server
-static DWORD SendDataThread(void)
+// Handles getting the input from the user
+static DWORD InputThread(void)
 {
 	DWORD wait_res;
 	BOOL release_res;
@@ -202,9 +213,9 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 
 
 	/* Create two semaphores in order to synchronize two threads:
-	SendDataThread: gets the input from the users keyboard and stores it in a global variable.
+	InputThread: gets the input from the users keyboard and stores it in a global variable.
 	MsgThread: takes the users' input, then generates and sends the appropriate message to the server.
-	We synchronzie the threads in such a way that MsgThread starts taking the info fron the gloabl variable only after SendDataThread 
+	We synchronzie the threads in such a way that MsgThread starts taking the info fron the gloabl variable only after InputThread 
 	had signaled that it has stored the info. */
 
 	h_message = CreateSemaphore(
@@ -224,7 +235,7 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 		NULL,
 		0,
 		(LPTHREAD_START_ROUTINE)RecvDataThread,
-		NULL,
+		path,
 		0,
 		NULL
 	);
@@ -240,7 +251,7 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 	hThread[2] = CreateThread(
 		NULL,
 		0,
-		(LPTHREAD_START_ROUTINE)SendDataThread,
+		(LPTHREAD_START_ROUTINE)InputThread,
 		NULL,
 		0,
 		NULL
@@ -328,12 +339,102 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 }
 
 
-void print_msg(char *msg)
-{
-	int i = 0;
-	while (msg[i] != '\n')
-	{
-		printf("%c", msg[i]);
-		++i;
+//void print_msg(char *msg)
+//{
+//	int i = 0;
+//	while (msg[i] != '\n')
+//	{
+//		printf("%c", msg[i]);
+//		++i;
+//	}
+//}
+
+
+int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
+	int message_type_end_place = find_char(AcceptedStr, ':', 0);
+	int end_of_message = find_char(AcceptedStr, '\n', 0);
+	printf("AcceptedStr %s\n", AcceptedStr);
+	printf("end_of_message %d\n", end_of_message);
+	printf("message_type_end_place  %d\n", message_type_end_place);
+
+	if ((end_of_message == -1) || ((message_type_end_place != -1) && (message_type_end_place > end_of_message))) {
+		//check the messeage string fits the protocol
+		return -1;
 	}
+	if (message_type_end_place == -1) {//no params in message
+		message_type_end_place = end_of_message;
+	}
+	char *c_MessageType = malloc(sizeof(char)*message_type_end_place);
+	int i;
+	for (i = 0; i < message_type_end_place; i++) {
+		c_MessageType[i] = AcceptedStr[i];
+	}
+	c_MessageType[i] = '\0';
+	*MessageType = c_MessageType;
+	if (find_char(AcceptedStr, ':', 0) == -1) {//no params in message
+		return 0;
+	}
+	char *c_param1;
+	int len_of_param1;
+	int param1_end_place = find_char(AcceptedStr, ';', 0);
+	if (param1_end_place == -1) {//only 1 param in the msg
+		param1_end_place = find_char(AcceptedStr, '\n', 0);
+	}
+	len_of_param1 = param1_end_place - message_type_end_place;
+	c_param1 = malloc((len_of_param1) * sizeof(char));
+	for (i = message_type_end_place + 1; i < param1_end_place; i++) {
+		c_param1[i - message_type_end_place - 1] = AcceptedStr[i];
+	}
+	c_param1[i - message_type_end_place - 1] = '\0';
+	*param1 = c_param1;
+	if (find_char(AcceptedStr, ';', 0) == -1) {
+		return 0;
+	}
+	char *c_param2;
+	int len_of_param2;
+	int param2_end_place = find_char(AcceptedStr, ';', param1_end_place + 1);
+	if (param2_end_place == -1) {
+		param2_end_place = find_char(AcceptedStr, '\n', 0);
+	}
+	len_of_param2 = param2_end_place - param1_end_place;
+	c_param2 = malloc((len_of_param2) * sizeof(char));
+	for (i = param1_end_place + 1; i < param2_end_place; i++) {
+		c_param2[i - param1_end_place - 1] = AcceptedStr[i];
+	}
+	c_param2[i - param1_end_place - 1] = '\0';
+	*param2 = c_param2;
+	if (find_char(AcceptedStr, ';', param1_end_place + 1) == -1) {
+		return 0;
+	}
+	char *c_param3;
+	int len_of_param3;
+	int param3_end_place = find_char(AcceptedStr, ';', param2_end_place + 1);
+	if (param3_end_place == -1) {
+		param3_end_place = find_char(AcceptedStr, '\n', 0);
+	}
+	len_of_param3 = param3_end_place - param2_end_place;
+	c_param3 = malloc((len_of_param3) * sizeof(char));
+	for (i = param2_end_place + 1; i < param3_end_place; i++) {
+		c_param3[i - param2_end_place - 1] = AcceptedStr[i];
+	}
+	c_param3[i - param2_end_place - 1] = '\0';
+	*param3 = c_param3;
+	return 0;
+}
+
+int find_char(char *string, char c, int start_from) {
+	int i = start_from;
+	int found = 0;
+	while (!found)
+	{
+		if (string[i] == c) {
+			found = 1;
+			return i;
+		}
+		if (i > strlen(string)) {
+			return -1;
+		}
+		i++;
+	}
+
 }

@@ -15,7 +15,8 @@ by Amnon Drory.
 #include <string.h>
 void MainClient(char *path, char *server_ip, char *server_port_char, char *username);
 int cnctnt(char *source1, char *source2, char **p_dest);
-void print_msg(char *msg);
+int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3);
+int find_char(char *string, char c, int start_from);
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 #endif // CLIENT_SOCKET_H

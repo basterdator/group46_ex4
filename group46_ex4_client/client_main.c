@@ -4,13 +4,18 @@
 int main(int argc, char *argv[])
 {	
 
-	//char string1[] = "msg:";
+	//char string1[] = "NEW_USER_REQUEST:";
 	//char string2[] = "anton\n";
 	//char *string3 = NULL;
+	//char *MSG_type = NULL;
+	//char *param1 = NULL;
+	//char *param2 = NULL;
+	//char *param3 = NULL;
 	//cnctnt(string1, string2, &string3);
+	//ParseMessage(string3, &MSG_type, &param1, &param2, &param3);
 
-	//printf("%s\n", string3);
-	//print_msg(string3);
+	//printf("%s\n", MSG_type);
+	//printf("%s\n", param1);
 
 	if (argc == 5)
 	{
