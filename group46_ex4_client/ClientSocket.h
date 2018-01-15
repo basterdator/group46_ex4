@@ -19,4 +19,10 @@ int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **pa
 int find_char(char *string, char c, int start_from);
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
+typedef struct 
+{
+	char *username;
+	char *path;
+}MsgThreadParms;
+
 #endif // CLIENT_SOCKET_H

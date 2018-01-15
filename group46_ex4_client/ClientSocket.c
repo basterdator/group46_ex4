@@ -15,6 +15,8 @@ Last updated by Amnon Drory, Winter 2011.
 #include <string.h>
 #include "SocketShared.h"
 #include "SendRecvTools.h"
+#include "ClientSocket.h"
+
 
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
@@ -22,10 +24,13 @@ char SendStr[256];
 int gnrt_msg_rslt;
 static HANDLE h_message;
 static HANDLE h_input;
+static HANDLE write_to_file;
 static void ReportErrorAndEndProgram();
 int PrintToLogFile(char *p_msg, char *path);
 SOCKET m_socket;
 static char *send_char;
+static DWORD wait_res;
+static BOOL release_res;
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
@@ -39,32 +44,50 @@ static DWORD RecvDataThread(LPVOID lpParam)
 	while (1)
 	{
 		char *AcceptedStr = NULL;
-		//char *MSG_type = NULL;
-		//char *param1 = NULL;
-		//char *param2 = NULL;
-		//char *param3 = NULL;
+		char *MSG_type = NULL;
+		char *param1 = NULL;
+		char *param2 = NULL;
+		char *param3 = NULL;
 		RecvRes = ReceiveString(&AcceptedStr, m_socket);
-
-
 		if (RecvRes == TRNS_FAILED)
 		{
-			printf("Server disconnected. Exiting\n");
+			// *****************************************************
+			wait_res = WaitForSingleObject(write_to_file, INFINITE);
+			if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+			PrintToLogFile("Server disconnected. Exiting.\n", path);
+			release_res = ReleaseMutex(write_to_file);
+			if (release_res == FALSE) ReportErrorAndEndProgram();
+			// *****************************************************
+			printf("Server disconnected. Exiting.\n");
 			return 0x555;
 		}
 		else if (RecvRes == TRNS_DISCONNECTED)
 		{
-			printf("Server disconnected. Exiting\n");
+			// *****************************************************
+			wait_res = WaitForSingleObject(write_to_file, INFINITE);
+			if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+			PrintToLogFile("Server disconnected. Exiting.\n", path);
+			release_res = ReleaseMutex(write_to_file);
+			if (release_res == FALSE) ReportErrorAndEndProgram();
+			// *****************************************************
+			printf("Server disconnected. Exiting.\n");
 			return 0x555;
 		}
-		else
+		else 
 		{
-			printf("%s\n", AcceptedStr);
-		/*	ParseMessage(AcceptedStr, &MSG_type, &param1, &param2, &param3);
+			//printf("%s", AcceptedStr);
+			ParseMessage(AcceptedStr, &MSG_type, &param1, &param2, &param3);
 			if (STRINGS_ARE_EQUAL(MSG_type, "NEW_USER_DECLINED"))
 			{
-				printf("Request to join was refused\n");
-				PrintToLogFile("Request to join was refused\n", path);
-			}*/
+				printf("Request to join was refused.\n");
+				// *****************************************************
+				wait_res = WaitForSingleObject(write_to_file, INFINITE);
+				if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+				PrintToLogFile("Request to join was refused.\n", path);
+				release_res = ReleaseMutex(write_to_file);
+				if (release_res == FALSE) ReportErrorAndEndProgram();
+				// *****************************************************
+			}
 		}
 
 		free(AcceptedStr);
@@ -78,17 +101,29 @@ static DWORD RecvDataThread(LPVOID lpParam)
 // Handling messeges: getting the input from the user, generating the right messege and sending it to the server
 static DWORD MsgThread(LPVOID lpParam)
 {
-	DWORD wait_res;
-	BOOL release_res;
 	TransferResult_t SendRes;
+	MsgThreadParms *parms;
+	parms = (MsgThreadParms *)lpParam;
+	char *first_msg = NULL;
+	//char *log_msg = NULL;
+	//char *username = NULL;
+	//char *path = NULL;
+    //cnctnt(parms->path, "\0", &path);
+	//cnctnt(parms->username, "\0", &username);
+
 	// The first operation of the client is to send a message that contains the username of the client,
 	//so it happens automatically as the message thread starts up ****************************************
-	char *username;
-	username = (char *)lpParam;
-	char *first_msg = NULL;
-	cnctnt("NEW_USER_REQUEST:", username, &first_msg);
+	cnctnt("NEW_USER_REQUEST:", parms->username, &first_msg);
 	cnctnt(first_msg, "\n", &first_msg);
 	SendRes = SendString(first_msg, m_socket);
+	// *****************************************************
+	wait_res = WaitForSingleObject(write_to_file, INFINITE);
+	if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+	PrintToLogFile("Sent to server: ", parms->path);
+	PrintToLogFile(first_msg, parms->path);
+	release_res = ReleaseMutex(write_to_file);
+	if (release_res == FALSE) ReportErrorAndEndProgram();
+	// *****************************************************
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
@@ -104,8 +139,15 @@ static DWORD MsgThread(LPVOID lpParam)
 		gnrt_msg_rslt = generate_msg(SendStr, &p_SendMsg);
 		if (gnrt_msg_rslt == 0)
 		{
+			// *****************************************************
+			wait_res = WaitForSingleObject(write_to_file, INFINITE);
+			if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+			PrintToLogFile("Sent to server: ", parms->path);
+			PrintToLogFile(p_SendMsg, parms->path);
+			release_res = ReleaseMutex(write_to_file);
+			if (release_res == FALSE) ReportErrorAndEndProgram();
+			// *****************************************************
 			SendRes = SendString(p_SendMsg, m_socket);
-
 			if (SendRes == TRNS_FAILED)
 			{
 				printf("Socket error while trying to write data to socket\n");
@@ -120,6 +162,17 @@ static DWORD MsgThread(LPVOID lpParam)
 				NULL);
 			if (release_res == FALSE) ReportErrorAndEndProgram();
 			return 0x555;
+		}
+		else if (gnrt_msg_rslt == -1)
+		{
+
+			// *****************************************************
+			wait_res = WaitForSingleObject(write_to_file, INFINITE);
+			if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
+			PrintToLogFile("Error: Illegal command\n", parms->path);
+			release_res = ReleaseMutex(write_to_file);
+			if (release_res == FALSE) ReportErrorAndEndProgram();
+			// *****************************************************
 		}
 		
 
@@ -136,8 +189,6 @@ static DWORD MsgThread(LPVOID lpParam)
 // Handles getting the input from the user
 static DWORD InputThread(void)
 {
-	DWORD wait_res;
-	BOOL release_res;
 
 	while (gnrt_msg_rslt != 1)
 	{	
@@ -159,8 +210,27 @@ static DWORD InputThread(void)
 
 void MainClient(char *path, char *server_ip, char *server_port_char, char *username)
 {
+
 	SOCKADDR_IN clientService;
 	HANDLE hThread[3];
+	MsgThreadParms *parms;
+	write_to_file = CreateMutex(
+		NULL,   /* default security attributes */
+		FALSE,	/* don't lock mutex immediately */
+		NULL); /* un-named */
+	if (write_to_file == NULL)
+	{
+		CloseHandle(write_to_file);
+		return -1;
+	}
+	parms = (MsgThreadParms *)malloc(sizeof(MsgThreadParms));
+	parms->path = path;
+	parms->username = username;
+	if (NULL == parms)
+	{
+		printf("Error when allocating memory\n");
+		return -1;
+	}
 
 	// Initialize Winsock.
 	WSADATA wsaData; //Create a WSADATA object called wsaData.
@@ -209,23 +279,35 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 												 // Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
 												 // Check for general errors.
 	if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
-		printf("Failed connecting to server on %s:%s\n",server_ip,server_port_char);
+		printf("Failed connecting to server on %s:%s. Exiting.\n",server_ip,server_port_char);
+		// *****************************************************
+		wait_res = WaitForSingleObject(write_to_file, INFINITE);
+		if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
 		PrintToLogFile("Failed connecting to server on ", path);
 		PrintToLogFile(server_ip, path);
 		PrintToLogFile(":", path);
 		PrintToLogFile(server_port_char, path);
-		PrintToLogFile("\n", path);
+		PrintToLogFile(". Exiting.\n", path);
+		release_res = ReleaseMutex(write_to_file);
+		if (release_res == FALSE) ReportErrorAndEndProgram();
+		// *****************************************************
+
 		WSACleanup();
 		return;
 	} 
 	else {
 		printf("Connected to server on %s:%s\n", server_ip, server_port_char);
+		// *****************************************************
+		wait_res = WaitForSingleObject(write_to_file, INFINITE);
+		if (wait_res != WAIT_OBJECT_0) ReportErrorAndEndProgram();
 		PrintToLogFile("Connected to server on ", path);
 		PrintToLogFile(server_ip, path);
 		PrintToLogFile(":", path);
 		PrintToLogFile(server_port_char, path);
 		PrintToLogFile("\n", path);
-
+		release_res = ReleaseMutex(write_to_file);
+		if (release_res == FALSE) ReportErrorAndEndProgram();
+		// *****************************************************
 	}
 
 
@@ -240,14 +322,26 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 		0,		
 		1,		
 		NULL); 
+	if (h_message == NULL)
+	{
+		CloseHandle(h_message);
+		return -1;
+	}
 	h_input = CreateSemaphore(
 		NULL,	
 		0,		
 		1,		
 		NULL); 
+	if (h_input == NULL)
+	{
+		CloseHandle(h_input);
+		return -1;
+	}
+
 
 	/* The three threads we were asked to create:
 	As mentioned above, including: RecvDataThread - A thread that recieves data from the server 	*/
+
 	hThread[0] = CreateThread(
 		NULL,
 		0,
@@ -261,7 +355,7 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 		NULL,
 		0,
 		(LPTHREAD_START_ROUTINE)MsgThread,
-		username,
+		parms,
 		0,
 		NULL
 	);
@@ -286,9 +380,7 @@ void MainClient(char *path, char *server_ip, char *server_port_char, char *usern
 	CloseHandle(hThread[2]);
 	CloseHandle(h_message);
 	CloseHandle(h_input);
-
-
-
+	CloseHandle(write_to_file);
 
 	closesocket(m_socket);
 
@@ -304,6 +396,7 @@ int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a str
 
 	errno_t retval;
 	FILE *p_stream;
+
 	//printf("path is: %s\n\n", path);
 	retval = fopen_s(&p_stream, path, "a");
 	if (0 != retval)
@@ -375,9 +468,9 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
 	int message_type_end_place = find_char(AcceptedStr, ':', 0);
 	int end_of_message = find_char(AcceptedStr, '\n', 0);
-	printf("AcceptedStr %s\n", AcceptedStr);
-	printf("end_of_message %d\n", end_of_message);
-	printf("message_type_end_place  %d\n", message_type_end_place);
+	//printf("AcceptedStr %s\n", AcceptedStr);
+	//printf("end_of_message %d\n", end_of_message);
+	//printf("message_type_end_place  %d\n", message_type_end_place);
 
 	if ((end_of_message == -1) || ((message_type_end_place != -1) && (message_type_end_place > end_of_message))) {
 		//check the messeage string fits the protocol
@@ -458,7 +551,7 @@ int find_char(char *string, char c, int start_from) {
 		}
 		i++;
 	}
-
+	return -1;
 }
 
 int generate_msg(char *input, char **output)
