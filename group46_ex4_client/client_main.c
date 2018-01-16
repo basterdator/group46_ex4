@@ -1,9 +1,10 @@
 
 #include "ClientSocket.h"
 
+
 int main(int argc, char *argv[])
 {	
-
+	
 	//char string1[] = "NEW_USER_REQUEST:";
 	//char string2[] = "anton\n";
 	//char *string3 = NULL;
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 
 	//printf("%s\n", MSG_type);
 	//printf("%s\n", param1);
-
+	int res = 0;
 	if (argc == 5)
 	{
 		// === The next few lines delete the existing data in the log file ===
@@ -37,7 +38,11 @@ int main(int argc, char *argv[])
 		}
 		// ====================================================================
 
-		MainClient(argv[1], argv[2], argv[3], argv[4]);
+		res = MainClient(argv[1], argv[2], argv[3], argv[4]);
+		printf("Return code %d", res);
+		return res;
+
+
 	}
 	else
 	{
