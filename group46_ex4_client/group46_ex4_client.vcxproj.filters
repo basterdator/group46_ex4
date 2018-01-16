@@ -30,6 +30,9 @@
     <ClCompile Include="..\Shared\SendRecvTools.c">
       <Filter>Shared Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\Shared\BoardTools.c">
+      <Filter>Shared Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientSocket.h">
@@ -39,6 +42,9 @@
       <Filter>Shared Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\Shared\SendRecvTools.h">
+      <Filter>Shared Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\BoardTools.h">
       <Filter>Shared Headers</Filter>
     </ClInclude>
   </ItemGroup>

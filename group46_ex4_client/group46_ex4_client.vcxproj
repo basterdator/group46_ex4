@@ -112,11 +112,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Shared\BoardTools.c" />
     <ClCompile Include="..\Shared\SendRecvTools.c" />
     <ClCompile Include="ClientSocket.c" />
     <ClCompile Include="client_main.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Shared\BoardTools.h" />
     <ClInclude Include="..\Shared\SendRecvTools.h" />
     <ClInclude Include="..\Shared\SocketShared.h" />
     <ClInclude Include="ClientSocket.h" />
