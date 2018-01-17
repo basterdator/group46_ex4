@@ -1,6 +1,11 @@
-//===================================================================================//
-
-//===================================================================================//
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
@@ -102,7 +107,6 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				return -1;
 			}
 			// *****************************************************
-			//printf("%s", AcceptedStr);
 			if (ParseMessage(AcceptedStr, &MSG_type, &param1, &param2, &param3) == 0 )
 			{
 				if (STRINGS_ARE_EQUAL(MSG_type, "NEW_USER_DECLINED"))
@@ -432,11 +436,6 @@ static DWORD MsgThread(LPVOID lpParam)
 	MsgThreadParms *parms;
 	parms = (MsgThreadParms *)lpParam;
 	char *first_msg = NULL;
-	//char *log_msg = NULL;
-	//char *username = NULL;
-	//char *path = NULL;
-    //cnctnt(parms->path, "\0", &path);
-	//cnctnt(parms->username, "\0", &username);
 
 	// The first operation of the client is to send a message that contains the username of the client,
 	//so it happens automatically as the message thread starts up ****************************************
@@ -497,7 +496,8 @@ static DWORD MsgThread(LPVOID lpParam)
 			SendRes = SendString(p_SendMsg, m_socket);
 			if (SendRes == TRNS_FAILED)
 			{
-				if (STRINGS_ARE_EQUAL(SendStr, "state"))
+				// Takes care of the requirement that the client prints an error if the user asks for the state when the game had already finished
+				if (STRINGS_ARE_EQUAL(SendStr, "state"))  
 				{
 					printf("Error: Game has already ended\n");
 					// *****************************************************
@@ -813,6 +813,7 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	return 0;
 }
 
+//===================================================================================//
 int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a string and a path-string
 {
 
@@ -843,12 +844,14 @@ int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a str
 	return 0;
 }
 
+//===================================================================================//
 static void ReportErrorAndEndProgram()
 {
 	printf("PrintToRePortFile error, ending program. Last Error = 0x%x\n", GetLastError());
 	return;
 }
 
+//===================================================================================//
 int cnctnt(char *source1, char *source2, char **p_dest)
 {
 	int i, j;
@@ -857,24 +860,21 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 	size_t size3 = sizeof(char)*(size1 + size2);
 	char *dest = (char*)calloc(size3+1,sizeof(char));
 	if (dest == NULL) {
-		return(-1);
+		return -1;
 	}
 	for (i = 0; i < size1; ++i)
 	{
-		dest[i] = source1[i];
-		//printf("%s\n", dest);
-	}
+		dest[i] = source1[i];	}
 	for (j = 0; j < size2; ++j)
 	{
 		dest[i+j] = source2[j];
-		//printf("%s\n", dest);
-
 	}
 	dest[i + j] = '\0';
 	*p_dest = dest;
 	return 0;
 }
 
+//===================================================================================//
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
 	int message_type_end_place = find_char(AcceptedStr, ':', 0);
 	int end_of_message = find_char(AcceptedStr, '\n', 0);
@@ -947,6 +947,7 @@ int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **pa
 	return 0;
 }
 
+//===================================================================================//
 int find_char(char *string, char c, int start_from) {
 	int i = start_from;
 	int found = 0;
@@ -964,6 +965,7 @@ int find_char(char *string, char c, int start_from) {
 	return -1;
 }
 
+//===================================================================================//
 int generate_msg(char *input, char **output)
 {
 	if (STRINGS_ARE_EQUAL(input, "players"))
@@ -1037,3 +1039,5 @@ int generate_msg(char *input, char **output)
 	}
 
 }
+
+//**********************************************************************************//

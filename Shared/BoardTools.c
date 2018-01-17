@@ -1,7 +1,13 @@
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
 
 //===================================================================================//
-#include "SendRecvTools.h"
-#include "SocketShared.h"
 #include "BoardTools.h"
 #include <stdio.h>
 #include <string.h>
@@ -66,7 +72,7 @@ int mark_board(char *board, char x, char y, char mark, char **p_new_board)
 	else {
 		return -1;
 	}
-	
+
 }
 //===================================================================================//
 int he_won(char *board, char mark)
@@ -112,7 +118,7 @@ int he_won(char *board, char mark)
 	else {
 		return -1;
 	}
-	
+
 }
 //===================================================================================//
 int print_board(char *board)
@@ -174,6 +180,7 @@ int print_board(char *board)
 		}
 		printf("|\n");
 		// ----------------------------
+
 		// ----- print bottom row -----
 		printf("|");
 		if (board[0] == '0')
@@ -211,7 +218,7 @@ int print_board(char *board)
 //===================================================================================//
 int board_full(char *board)
 {
-	int i=0;
+	int i = 0;
 	int full = 1;
 	if (strlen(board) == 9)
 	{

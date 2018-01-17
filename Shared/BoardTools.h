@@ -1,4 +1,13 @@
-
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
+#ifndef BOARD_TOOLS_H
+#define BOARD_TOOLS_H
 //===================================================================================//
 /* mark_board() gets the parameters:
 ------------
@@ -34,3 +43,4 @@ int print_board(char *board);
 The function will return -1 if the given string is not 9 chars long*/
 int board_full(char *board);
 
+#endif // BOARD_TOOLS_H

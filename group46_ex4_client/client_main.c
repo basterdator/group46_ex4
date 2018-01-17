@@ -1,6 +1,13 @@
-//===================================================================================//
 
-//===================================================================================//
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
+
 
 #include "ClientSocket.h"
 #include "BoardTools.h"
@@ -8,6 +15,14 @@
 
 int main(int argc, char *argv[])
 {	
+
+	//char board[] = "000000000";
+	//char *p_board = &board;
+	//printf("%s\n", board);
+	//char *NEW_BOARD = NULL;
+	//mark_board(board, '1', '2', 'x', &p_board);
+	//printf("%s\n", board);
+
 	int res = 0;
 	if (argc == 5)
 	{
