@@ -11,8 +11,9 @@ Anton Chaplianka          310224209
 #include "BoardTools.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 //===================================================================================//
-int mark_board(char *board, char x, char y, char mark, char **p_new_board)
+int mark_board(char *board, char y, char x, char mark, char **p_new_board)
 {
 	if (strlen(board) == 9)
 	{

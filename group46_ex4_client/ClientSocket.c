@@ -29,8 +29,6 @@ SOCKET m_socket;
 static char *send_char;
 static DWORD wait_res;
 static BOOL release_res;
-static HANDLE write_to_file;
-
 //===================================================================================//
 
 //Reading data coming from the server
@@ -131,7 +129,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "NEW_USER_ACCEPTED"))
 				{
-					printf("Player accepted , you play %s, number of current players: %s\n", param1, param2);
+					printf("Player accepted, you play %s, number of current players: %s\n", param1, param2);
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "USER_LIST_REPLY"))
 				{
@@ -228,7 +226,29 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW_REPLY"))
 				{
-					print_board(param1);
+					if (param1 != NULL)
+					{
+						print_board(param1);
+					}
+					else
+					{
+						printf("Error: Invalid server message. Exiting.\n");
+						// *****************************************************
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+							return -1;
+						}
+						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
+						release_res = ReleaseMutex(write_to_file);
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+							return -1;
+						}
+						// *****************************************************
+					}
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "PLAY_ACCEPTED"))
 				{
@@ -313,7 +333,29 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW"))
 				{
-					print_board(param1);
+					if (param1 != NULL)
+					{
+						print_board(param1);
+					}
+					else
+					{
+						printf("Error: Invalid server message. Exiting.\n");
+						// *****************************************************
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+							return -1;
+						}
+						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
+						release_res = ReleaseMutex(write_to_file);
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+							return -1;
+						}
+						// *****************************************************
+					}
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_ENDED"))
 				{
@@ -646,17 +688,8 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		WSACleanup();
 		return -1;
 	}
-	/*
-	The parameters passed to the socket function can be changed for different implementations.
-	Error detection is a key part of successful networking code.
-	If the socket call fails, it returns INVALID_SOCKET.
-	The if statement in the previous code is used to catch any errors that may have occurred while creating
-	the socket. WSAGetLastError returns an error number associated with the last error that occurred.
-	*/
+	
 
-
-	//For a client to communicate on a network, it must connect to a server.
-	// Connect to a server.
 
 	//Create a sockaddr_in object clientService and set  values.
 	int server_port_int = atoi(server_port_char);
@@ -664,9 +697,7 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	clientService.sin_addr.s_addr = inet_addr(server_ip); //Setting the IP address to connect to
 	clientService.sin_port = htons(server_port_int); //Setting the port to connect to.
 
-												 /*
-												 AF_INET is the Internet address family.
-												 */
+												
 
 
 												 // Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
@@ -751,11 +782,12 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	/* The three threads we were asked to create:
 	As mentioned above, including: RecvDataThread - A thread that recieves data from the server 	*/
 
+
 	hThread[0] = CreateThread(
 		NULL,
 		0,
-		(LPTHREAD_START_ROUTINE)RecvDataThread,
-		path,
+		(LPTHREAD_START_ROUTINE)MsgThread,
+		parms,
 		0,
 		NULL
 	);
@@ -764,12 +796,11 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		CloseHandle(h_input);
 		return -1;
 	}
-
 	hThread[1] = CreateThread(
 		NULL,
 		0,
-		(LPTHREAD_START_ROUTINE)MsgThread,
-		parms,
+		(LPTHREAD_START_ROUTINE)InputThread,
+		NULL,
 		0,
 		NULL
 	);
@@ -781,8 +812,8 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	hThread[2] = CreateThread(
 		NULL,
 		0,
-		(LPTHREAD_START_ROUTINE)InputThread,
-		NULL,
+		(LPTHREAD_START_ROUTINE)RecvDataThread,
+		path,
 		0,
 		NULL
 	);
@@ -791,6 +822,7 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		CloseHandle(h_input);
 		return -1;
 	}
+
 
 
 	WaitForMultipleObjects(3, hThread, FALSE, INFINITE);
