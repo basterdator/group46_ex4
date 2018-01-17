@@ -756,7 +756,7 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	MsgThread: takes the users' input, then generates and sends the appropriate message to the server.
 	We synchronzie the threads in such a way that MsgThread starts taking the info fron the gloabl variable only after InputThread 
 	had signaled that it has stored the info. */
-
+	
 	h_message = CreateSemaphore(
 		NULL,	
 		0,		
