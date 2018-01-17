@@ -1,7 +1,6 @@
 
 //===================================================================================//
 /* mark_board() gets the parameters:
-
 board - The input board string with '0' as blanks and 'x' and 'o' as marks (input parameter).
 x - A char with the x coordinate to mark.
 y - A char with the y coordinate to mark.

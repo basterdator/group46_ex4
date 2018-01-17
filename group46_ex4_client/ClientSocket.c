@@ -16,8 +16,7 @@ Last updated by Amnon Drory, Winter 2011.
 #include "SocketShared.h"
 #include "SendRecvTools.h"
 #include "ClientSocket.h"
-
-
+#include "BoardTools.h"
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 char SendStr[256];
@@ -228,10 +227,10 @@ static DWORD RecvDataThread(LPVOID lpParam)
 
 
 				}
-				//else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW_REPLY"))
-				//{
-				//	
-				//}
+				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW_REPLY"))
+				{
+					print_board(param1);
+				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "PLAY_ACCEPTED"))
 				{
 					printf("Well played\n");
@@ -313,10 +312,10 @@ static DWORD RecvDataThread(LPVOID lpParam)
 					}
 					// *****************************************************
 				}
-				//else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW"))
-				//{
-				//	
-				//}
+				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW"))
+				{
+					print_board(param1);
+				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_ENDED"))
 				{
 					if (param1 == NULL || ((STRINGS_ARE_EQUAL(param1, "1")!=1) && param2 == NULL)) {
@@ -819,8 +818,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	return 0;
 }
 
-
-
 int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a string and a path-string
 {
 
@@ -882,18 +879,6 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 	*p_dest = dest;
 	return 0;
 }
-
-
-//void print_msg(char *msg)
-//{
-//	int i = 0;
-//	while (msg[i] != '\n')
-//	{
-//		printf("%c", msg[i]);
-//		++i;
-//	}
-//}
-
 
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
 	int message_type_end_place = find_char(AcceptedStr, ':', 0);

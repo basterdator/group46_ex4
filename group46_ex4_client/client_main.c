@@ -5,10 +5,6 @@
 
 int main(int argc, char *argv[])
 {	
-	//printf("%d\n", he_won("ooxoxoxoo", 'o'));
-	//printf("%d\n",print_board("ooxoxoxoo"));
-	//printf("%d", board_full("ooxoxoxoo"));
-
 	int res = 0;
 	if (argc == 5)
 	{
