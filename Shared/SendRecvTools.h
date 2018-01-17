@@ -3,12 +3,12 @@
 #ifndef SOCKET_SEND_RECV_TOOLS_H
 #define SOCKET_SEND_RECV_TOOLS_H
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
 
@@ -75,7 +75,6 @@ TransferResult_t ReceiveBuffer(char* OutputBuffer, int RemainingBytesToReceive, 
 */
 TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd);
 
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 #endif // SOCKET_SEND_RECV_TOOLS_H

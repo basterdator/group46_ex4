@@ -1,18 +1,12 @@
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-/*
-This file was written for instruction purposes for the
-course "Introduction to Systems Programming" at Tel-Aviv
-University, School of Electrical Engineering, Winter 2011,
-by Amnon Drory, based on example code by Johnson M. Hart.
-*/
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
+
+//===================================================================================//
 
 #include "SendRecvTools.h"
-
 #include <stdio.h>
 #include <string.h>
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd)
 {
@@ -37,7 +31,7 @@ TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd)
 	return TRNS_SUCCEEDED;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 TransferResult_t SendString(const char *Str, SOCKET sd)
 {
@@ -66,7 +60,7 @@ TransferResult_t SendString(const char *Str, SOCKET sd)
 	return SendRes;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 TransferResult_t ReceiveBuffer(char* OutputBuffer, int BytesToReceive, SOCKET sd)
 {
@@ -93,7 +87,7 @@ TransferResult_t ReceiveBuffer(char* OutputBuffer, int BytesToReceive, SOCKET sd
 	return TRNS_SUCCEEDED;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 {

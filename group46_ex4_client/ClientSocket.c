@@ -1,11 +1,6 @@
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-/*
-This file was written for instruction purposes for the
-course "Introduction to Systems Programming" at Tel-Aviv
-University, School of Electrical Engineering.
-Last updated by Amnon Drory, Winter 2011.
-*/
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
+
+//===================================================================================//
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
@@ -18,7 +13,7 @@ Last updated by Amnon Drory, Winter 2011.
 #include "ClientSocket.h"
 #include "BoardTools.h"
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 char SendStr[256];
 int gnrt_msg_rslt;
 static HANDLE h_message;
@@ -31,7 +26,7 @@ static DWORD wait_res;
 static BOOL release_res;
 static HANDLE write_to_file;
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 //Reading data coming from the server
 static DWORD RecvDataThread(LPVOID lpParam)
@@ -273,7 +268,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_STARTED"))
 				{
-					printf("Game is on!\n", param1);
+					printf("Game is on!\n");
 					// *****************************************************
 					wait_res = WaitForSingleObject(write_to_file, INFINITE);
 					if (wait_res != WAIT_OBJECT_0)
@@ -428,7 +423,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 	return 0;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 // Handling messeges: getting the input from the user, generating the right messege and sending it to the server
 static DWORD MsgThread(LPVOID lpParam)
@@ -575,7 +570,7 @@ static DWORD MsgThread(LPVOID lpParam)
 	}
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 // Handles getting the input from the user
 static DWORD InputThread(void)
@@ -605,7 +600,7 @@ static DWORD InputThread(void)
 	return 0x555;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 int MainClient(char *path, char *server_ip, char *server_port_char, char *username)
 {
@@ -857,9 +852,9 @@ static void ReportErrorAndEndProgram()
 int cnctnt(char *source1, char *source2, char **p_dest)
 {
 	int i, j;
-	int size1 = strlen(source1);
-	int size2 = strlen(source2);
-	int size3 = sizeof(char)*(size1 + size2);
+	size_t size1 = strlen(source1);
+	size_t size2 = strlen(source2);
+	size_t size3 = sizeof(char)*(size1 + size2);
 	char *dest = (char*)calloc(size3+1,sizeof(char));
 	if (dest == NULL) {
 		return(-1);
