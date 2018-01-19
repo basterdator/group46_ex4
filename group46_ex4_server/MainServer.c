@@ -1,40 +1,44 @@
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
 
 //===================================================================================//
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-//===================================================================================//
 
+//===================================================================================//
 #include <stdio.h>
 #include <string.h>
 #include <winsock2.h>
 #include <stdlib.h>
 #include "SendRecvTools.h"
 #include "ServiceThread.h"
-//===================================================================================//
 #define MAX_LOOPS 400
-//===================================================================================//
 
+//===================================================================================//
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
 SOCKET ThreadInputs[NUM_OF_WORKER_THREADS];
 static int FindFirstUnusedThreadSlot();
 static void CleanupWorkerThreads();
 int PrintToLogFile(char *p_msg);
-
 char user_name1[USER_NAME_SIZE];
 char user_name2[USER_NAME_SIZE];
 char user_name_init[] = "0000";
 char board[9];
-
-
 HANDLE board_semaphore;
 HANDLE write_to_file;
 char *g_path;
 char *g_server_ip;
 char *g_server_port_char;
 HANDLE AcceptThreadHandle;
-
 DWORD AcceptConnections();
 int active = 0;
+
 //===================================================================================//
 int MainServer(char *path, char *server_ip, char *server_port_char)
 {
@@ -89,8 +93,9 @@ int MainServer(char *path, char *server_ip, char *server_port_char)
 		 CloseHandle(AcceptThreadHandle);
 		 return 0;
 }
-//===================================================================================//
 
+
+//===================================================================================//
 static int FindFirstUnusedThreadSlot()
 {
 	int Ind;
@@ -116,8 +121,8 @@ static int FindFirstUnusedThreadSlot()
 	return Ind;
 }
 
-//===================================================================================//
 
+//===================================================================================//
 static void CleanupWorkerThreads()
 {
 	int Ind;
@@ -144,8 +149,9 @@ static void CleanupWorkerThreads()
 		}
 	}
 }
-//===================================================================================//
 
+
+//===================================================================================//
 int PrintToLogFile(char *p_msg)  // input params: a pointer to a string and a path-string
 {
 
@@ -176,8 +182,8 @@ int PrintToLogFile(char *p_msg)  // input params: a pointer to a string and a pa
 	return 0;
 }
 
-//===================================================================================//
 
+//===================================================================================//
 DWORD AcceptConnections()
 {
 	
@@ -219,18 +225,7 @@ DWORD AcceptConnections()
 	service.sin_family = AF_INET;
 	service.sin_addr.s_addr = Address;
 	int server_port_int = atoi(server_port_char);
-	service.sin_port = htons(server_port_int); //The htons function converts a u_short from host to TCP/IP network byte order 
-											   //( which is big-endian ).
-											   /*
-											   The three lines following the declaration of sockaddr_in service are used to set up
-											   the sockaddr structure:
-											   AF_INET is the Internet address family.
-											   "127.0.0.1" is the local IP address to which the socket will be bound.
-											   2345 is the port number to which the socket will be bound.
-											   */
-
-											   // Call the bind function, passing the created socket and the sockaddr_in structure as parameters. 
-											   // Check for general errors.
+	service.sin_port = htons(server_port_int); 
 	bindRes = bind(MainSocket, (SOCKADDR*)&service, sizeof(service));
 	if (bindRes == SOCKET_ERROR)
 	{
@@ -308,4 +303,3 @@ server_cleanup_1:
 	return 0;
 }
 
-//===================================================================================//

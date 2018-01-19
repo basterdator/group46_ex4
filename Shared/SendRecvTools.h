@@ -7,8 +7,11 @@ Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
 
+//===================================================================================//
 #ifndef SEND_RECV_TOOLS_H
 #define SEND_RECV_TOOLS_H
+
+
 //===================================================================================//
 #include <string.h>
 #include <winsock2.h>
@@ -16,9 +19,11 @@ Anton Chaplianka          310224209
 
 //===================================================================================//
 #define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
+
 //===================================================================================//
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
 
+//===================================================================================//
 /**
 * SendBuffer() uses a socket to send a buffer.
 *
@@ -35,6 +40,8 @@ typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t
 */
 TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd);
 
+
+//===================================================================================//
 /**
 * SendString() uses a socket to send a string.
 * Str - the string to send.
@@ -42,6 +49,8 @@ TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd);
 */
 TransferResult_t SendString(const char *Str, SOCKET sd);
 
+
+//===================================================================================//
 /**
 * Accepts:
 * -------
@@ -60,6 +69,8 @@ TransferResult_t SendString(const char *Str, SOCKET sd);
 */
 TransferResult_t ReceiveBuffer(char* OutputBuffer, int RemainingBytesToReceive, SOCKET sd);
 
+
+//===================================================================================//
 /**
 * ReceiveString() uses a socket to receive a string, and stores it in dynamic memory.
 *
@@ -82,8 +93,8 @@ TransferResult_t ReceiveBuffer(char* OutputBuffer, int RemainingBytesToReceive, 
 */
 TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd);
 
-//===================================================================================//
 
+//===================================================================================//
 /* ParseMessage() Recieves:
 -----------
 AcceptedStr - The input message of type string in the format: "<Message type>:<param1>;<param2>;<param3>\n;"
@@ -93,7 +104,10 @@ MessageType, param1, param2, param3 (respectively)
 NOTICE!: The number of parameters is not constant! the function is prepared to revieve up to 3 parameters but can handle less.*/
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3);
 
-/*find_char()  - finds the location in <string> of the in first char 'n' that satisfies that for every char <c> {'n' == <c>}, beginning from the index <start_from> */
+//===================================================================================//
+//find_char()  - finds the location in <string> of the in first char 'n' that satisfies that for every char <c> {'n' == <c>}, 
+//starting from the index <start_from> 
 int find_char(char *string, char c, int start_from);
+
 
 #endif // SEND_RECV_TOOLS_H

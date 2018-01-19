@@ -1,3 +1,13 @@
+/* ==============================================
+Introduction to Systems Programming
+Winter 2017-2018
+TEL-AVIV UNIVERSITY
+Exercise 4
+Uri Cohen                 302825807
+Anton Chaplianka          310224209
+============================================== */
+
+//===================================================================================//
 #include "MainServer.h"
 #include <stdio.h>
 #include <string.h>
@@ -26,5 +36,5 @@ int main(int argc, char *argv[])
 	int Res = MainServer(argv[1], argv[2], argv[3]);
 	return Res;
 }
-//===================================================================================//
+
 

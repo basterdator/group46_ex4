@@ -6,7 +6,11 @@ Exercise 4
 Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
+
+//===================================================================================//
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+
 //===================================================================================//
 #include <winsock2.h>
 #include <stdio.h>
@@ -15,6 +19,8 @@ Anton Chaplianka          310224209
 #include "SendRecvTools.h"
 #include "ClientSocket.h"
 #include "BoardTools.h"
+
+
 //===================================================================================//
 char SendStr[256];
 int gnrt_msg_rslt;
@@ -26,8 +32,12 @@ SOCKET m_socket;
 static char *send_char;
 static DWORD wait_res;
 static BOOL release_res;
+
+
 //===================================================================================//
+
 //Reading data coming from the server
+//===================================================================================//
 static DWORD RecvDataThread(LPVOID lpParam)
 {
 	char *path;
@@ -434,6 +444,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 										ReportErrorAndEndProgram();
 									}
 									// *****************************************************
+									return 0;
 							}
 							else
 							{
@@ -500,8 +511,10 @@ static DWORD RecvDataThread(LPVOID lpParam)
 
 	return 0;
 }
-//===================================================================================//
+
+
 // Handling messeges: getting the input from the user, generating the right messege and sending it to the server
+//===================================================================================//
 static DWORD MsgThread(LPVOID lpParam)
 {
 	TransferResult_t SendRes;
@@ -637,8 +650,10 @@ static DWORD MsgThread(LPVOID lpParam)
 		}
 	}
 }
-//===================================================================================//
+
+
 // Handles getting the input from the user
+//===================================================================================//
 static DWORD InputThread(void)
 {
 
@@ -663,6 +678,8 @@ static DWORD InputThread(void)
 	}
 	return 0x555;
 }
+
+
 //===================================================================================//
 int MainClient(char *path, char *server_ip, char *server_port_char, char *username)
 {
@@ -860,6 +877,8 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 
 	return 0;
 }
+
+
 //===================================================================================//
 int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a string and a path-string
 {
@@ -890,12 +909,17 @@ int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a str
 	}
 	return 0;
 }
+
+
+// Prints the latest error message and returns -1
 //===================================================================================//
 static int ReportErrorAndEndProgram()
 {
 	printf("PrintToRePortFile error, ending program. Last Error = 0x%x\n", GetLastError());
 	return -1;
 }
+
+
 //===================================================================================//
 int cnctnt(char *source1, char *source2, char **p_dest)
 {
@@ -918,6 +942,8 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 	*p_dest = dest;
 	return 0;
 }
+
+
 //===================================================================================//
 int generate_msg(char *input, char **output)
 {
@@ -993,4 +1019,3 @@ int generate_msg(char *input, char **output)
 
 }
 
-//**********************************************************************************//

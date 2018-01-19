@@ -12,6 +12,7 @@ Anton Chaplianka          310224209
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 //===================================================================================//
 int mark_board(char *board, char y, char x, char mark, char **p_new_board)
 {
@@ -75,6 +76,8 @@ int mark_board(char *board, char y, char x, char mark, char **p_new_board)
 	}
 
 }
+
+
 //===================================================================================//
 int he_won(char *board, char mark)
 {
@@ -121,6 +124,8 @@ int he_won(char *board, char mark)
 	}
 
 }
+
+
 //===================================================================================//
 int print_board(char *board)
 {
@@ -216,6 +221,8 @@ int print_board(char *board)
 		return -1;
 	}
 }
+
+
 //===================================================================================//
 int board_full(char *board)
 {
@@ -249,3 +256,4 @@ int board_full(char *board)
 	}
 
 }
+

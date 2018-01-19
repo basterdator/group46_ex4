@@ -36,7 +36,6 @@ int user1_disconected;
 int user2_disconected;
 
 //===================================================================================//
-
 DWORD ServiceThread(player_params *p_player_params)
 {
 
@@ -336,6 +335,7 @@ DWORD ServiceThread(player_params *p_player_params)
 	}
 	return 0;
 }
+
 //===================================================================================//
 int RecieveStringTop(char **AcceptedStr, SOCKET *t_socket, int player_num) {
 	TransferResult_t RecvRes;
@@ -370,10 +370,12 @@ int RecieveStringTop(char **AcceptedStr, SOCKET *t_socket, int player_num) {
 	}
 	else //got string
 	{
-		printf("Got string : %s\n", *AcceptedStr); //for debug
+		printf("Got string : %s", *AcceptedStr); //for debug
 		return 0;
 	}
 }
+
+
 //===================================================================================//
 DWORD ServiceThreadSenRec(player_params *p_player_params) {
 	DWORD wait_res;
@@ -676,6 +678,7 @@ DWORD ServiceThreadSenRec(player_params *p_player_params) {
 	}//while
 	return 0;
 }
+
 //===================================================================================//
 TransferResult_t board_view_and_turn_switch(SOCKET *t_socket, int last_player_num, int only_board) {
 	TransferResult_t SendRes;
@@ -737,4 +740,3 @@ TransferResult_t board_view_and_turn_switch(SOCKET *t_socket, int last_player_nu
 	}
 
 }
-//===================================================================================//

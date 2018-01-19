@@ -6,6 +6,8 @@ Exercise 4
 Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
+
+//===================================================================================//
 #include "SendRecvTools.h"
 #include <stdio.h>
 #include <string.h>
@@ -31,6 +33,7 @@ TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd)
 
 	return TRNS_SUCCEEDED;
 }
+
 //===================================================================================//
 TransferResult_t SendString(const char *Str, SOCKET sd)
 {
@@ -56,6 +59,7 @@ TransferResult_t SendString(const char *Str, SOCKET sd)
 
 	return SendRes;
 }
+
 //===================================================================================//
 TransferResult_t ReceiveBuffer(char* OutputBuffer, int BytesToReceive, SOCKET sd)
 {
@@ -81,6 +85,7 @@ TransferResult_t ReceiveBuffer(char* OutputBuffer, int BytesToReceive, SOCKET sd
 
 	return TRNS_SUCCEEDED;
 }
+
 //===================================================================================//
 TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 {
@@ -127,6 +132,7 @@ TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 
 	return RecvRes;
 }
+
 //===================================================================================//
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
 	int message_type_end_place = find_char(AcceptedStr, ':', 0);
@@ -196,6 +202,7 @@ int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **pa
 	*param3 = c_param3;
 	return 0;
 }
+
 //===================================================================================//
 int find_char(char *string, char c, int start_from) {
 	int i = start_from;
@@ -213,4 +220,5 @@ int find_char(char *string, char c, int start_from) {
 	}
 	return -1;
 }
+
 //===================================================================================//

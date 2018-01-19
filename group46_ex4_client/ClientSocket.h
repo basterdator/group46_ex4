@@ -13,6 +13,7 @@ Anton Chaplianka          310224209
 //===================================================================================//
 #include <stdio.h>
 #include <string.h>
+
 //===================================================================================//
 /* MainClient() recieves the input parms:
 -----------------------------------------------
@@ -25,6 +26,7 @@ The function operates the flow of the client proccess, calls for the differant t
 Returns 0 if the flow was successful, and a non-zero code otherwise */
 int MainClient(char *path, char *server_ip, char *server_port_char, char *username);
 
+//===================================================================================//
 /* PrintToLogFile() recieves the input params:
 --------------------------------------------------
 p_msg - a string with the message to write to the log file
@@ -33,6 +35,8 @@ path - a string that contains the path of the log file.
 The function returns 0 if the write was successful and -1 otherwise */
 int PrintToLogFile(char *p_msg, char *path);
 
+
+//===================================================================================//
 /* cnctnt() recieves the following parms:
 --------------------------------------------------
 source1 - a string (input parm)
@@ -44,6 +48,7 @@ returns 0 if the operation was successful and -1 o.w. */
 int cnctnt(char *source1, char *source2, char **p_dest);
 
 
+//===================================================================================//
 /* generate_msg() gets the parameters: 
 --------------------------------------------------
 input - a sting with the user input 
@@ -53,13 +58,14 @@ The function writes the appropriate message to the output string and returns 0 i
 The function prints that the command was illegal and returns -1 if the input string is an invalid command*/
 int generate_msg(char *input, char **output);
 
-//===================================================================================//
 
+//===================================================================================//
 /* The struct we pass to MsgThread as a parameter*/
 typedef struct 
 {
 	char *username;
 	char *path;
 }MsgThreadParms;
+
 
 #endif // CLIENT_SOCKET_H
