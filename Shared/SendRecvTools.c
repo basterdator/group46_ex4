@@ -18,7 +18,6 @@ TransferResult_t SendBuffer(const char* Buffer, int BytesToSend, SOCKET sd)
 
 	while (RemainingBytesToSend > 0)
 	{
-		/* send does not guarantee that the entire message is sent */
 		BytesTransferred = send(sd, CurPlacePtr, RemainingBytesToSend, 0);
 		if (BytesTransferred == SOCKET_ERROR)
 		{
@@ -39,10 +38,8 @@ TransferResult_t SendString(const char *Str, SOCKET sd)
 	int TotalStringSizeInBytes;
 	TransferResult_t SendRes;
 
-	/* The request is sent in two parts. First the Length of the string (stored in
-	an int variable ), then the string itself. */
 
-	//TotalStringSizeInBytes = (int)(strlen(Str) + 1); // terminating zero also sent	
+
 	TotalStringSizeInBytes = (int)(strlen(Str)+1);
 	//printf("SendString wants to send %d chars\n", TotalStringSizeInBytes);
 	SendRes = SendBuffer(
@@ -101,8 +98,6 @@ TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd)
 		return TRNS_FAILED;
 	}
 
-	/* The request is received in two parts. First the Length of the string (stored in
-	an int variable ), then the string itself. */
 
 	RecvRes = ReceiveBuffer(
 		(char *)(&TotalStringSizeInBytes),

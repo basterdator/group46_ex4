@@ -21,7 +21,7 @@ int gnrt_msg_rslt;
 static HANDLE h_message;
 static HANDLE h_input;
 static HANDLE write_to_file;
-static void ReportErrorAndEndProgram();
+static int ReportErrorAndEndProgram();
 SOCKET m_socket;
 static char *send_char;
 static DWORD wait_res;
@@ -50,14 +50,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 			if (wait_res != WAIT_OBJECT_0)
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			PrintToLogFile("Server disconnected. Exiting.\n", path);
 			release_res = ReleaseMutex(write_to_file);
 			if (release_res == FALSE)
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			// *****************************************************
 			printf("Server disconnected. Exiting.\n");
@@ -70,14 +68,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 			if (wait_res != WAIT_OBJECT_0) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			PrintToLogFile("Server disconnected. Exiting.\n", path);
 			release_res = ReleaseMutex(write_to_file);
 			if (release_res == FALSE) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			// *****************************************************
 			printf("Server disconnected. Exiting.\n");
@@ -90,7 +86,6 @@ static DWORD RecvDataThread(LPVOID lpParam)
 			if (wait_res != WAIT_OBJECT_0)
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			PrintToLogFile("Received from server: ", path);
 			PrintToLogFile(AcceptedStr, path);
@@ -98,7 +93,6 @@ static DWORD RecvDataThread(LPVOID lpParam)
 			if (release_res == FALSE) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			// *****************************************************
 			if (ParseMessage(AcceptedStr, &MSG_type, &param1, &param2, &param3) == 0 )
@@ -111,14 +105,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 					if (wait_res != WAIT_OBJECT_0)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					PrintToLogFile("Request to join was refused.\n", path);
 					release_res = ReleaseMutex(write_to_file);
 					if (release_res == FALSE)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					// *****************************************************
 					return 0x555;
@@ -132,12 +124,23 @@ static DWORD RecvDataThread(LPVOID lpParam)
 					else 
 					{
 						printf("Error: Invalid server message. Exiting.\n");
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+						}
+						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
+
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+						}
 						return -1;
 					}
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "USER_LIST_REPLY"))
 				{
-					if (param2 == NULL) 
+					if (param1 != NULL && param2 == NULL) 
 					{
 						printf("Players: %s (x)\n", param1);
 						// *****************************************************
@@ -145,7 +148,6 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						PrintToLogFile("Players: ", path);
 						PrintToLogFile(param1, path);
@@ -154,18 +156,17 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						// *****************************************************
 					}
-					else {
+					else if (param1 != NULL && param2 != NULL) 
+					{
 						printf("Players: %s (x), %s (o)\n", param1, param2);
 						// *****************************************************
 						wait_res = WaitForSingleObject(write_to_file, INFINITE);
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						PrintToLogFile("Players: ", path);
 						PrintToLogFile(param1, path);
@@ -176,57 +177,82 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						// *****************************************************
+					}
+					else {
+						printf("Error: Invalid server message. Exiting.\n");
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+						}
+						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+						}
+						return -1;
 					}
 					
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_STATE_REPLY"))
 				{
-					if (STRINGS_ARE_EQUAL(param1, "0"))
+					if (param1 != NULL) 
 					{
-						printf("Game has not started\n");
-						// *****************************************************
+						if (STRINGS_ARE_EQUAL(param1, "0"))
+						{
+							printf("Game has not started\n");
+							// *****************************************************
+							wait_res = WaitForSingleObject(write_to_file, INFINITE);
+							if (wait_res != WAIT_OBJECT_0)
+							{
+								ReportErrorAndEndProgram();
+							}
+							PrintToLogFile("Game has not started\n", path);
+							release_res = ReleaseMutex(write_to_file);
+							if (release_res == FALSE)
+							{
+								ReportErrorAndEndProgram();
+							}
+							// *****************************************************
+						}
+						else if (STRINGS_ARE_EQUAL(param1, "1"))
+						{
+							printf("%s's turn (%s)\n", param2, param3);
+							// *****************************************************
+							wait_res = WaitForSingleObject(write_to_file, INFINITE);
+							if (wait_res != WAIT_OBJECT_0)
+							{
+								ReportErrorAndEndProgram();
+							}
+							PrintToLogFile(param2, path);
+							PrintToLogFile("'s turn (", path);
+							PrintToLogFile(param3, path);
+							PrintToLogFile(")\n", path);
+							release_res = ReleaseMutex(write_to_file);
+							if (release_res == FALSE)
+							{
+								ReportErrorAndEndProgram();
+							}
+							// *****************************************************
+						}
+					}
+					else
+					{
+						printf("Error: Invalid server message. Exiting.\n");
 						wait_res = WaitForSingleObject(write_to_file, INFINITE);
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
-						PrintToLogFile("Game has not started\n", path);
-						release_res = ReleaseMutex(write_to_file);
+						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
-						// *****************************************************
+						return -1;
 					}
-					else if (STRINGS_ARE_EQUAL(param1, "1"))
-					{
-						printf("%s's turn (%s)\n", param2, param3);
-						// *****************************************************
-						wait_res = WaitForSingleObject(write_to_file, INFINITE);
-						if (wait_res != WAIT_OBJECT_0)
-						{
-							ReportErrorAndEndProgram();
-							return -1;
-						}
-						PrintToLogFile(param2, path);
-						PrintToLogFile("'s turn (", path);
-						PrintToLogFile(param3, path);
-						PrintToLogFile(")\n", path);
-						release_res = ReleaseMutex(write_to_file);
-						if (release_res == FALSE)
-						{
-							ReportErrorAndEndProgram();
-							return -1;
-						}
-						// *****************************************************
-					}
-
-
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW_REPLY"))
 				{
@@ -242,14 +268,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
 						release_res = ReleaseMutex(write_to_file);
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						// *****************************************************
 					}
@@ -262,37 +286,41 @@ static DWORD RecvDataThread(LPVOID lpParam)
 					if (wait_res != WAIT_OBJECT_0)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					PrintToLogFile("Well played\n", path);
 					release_res = ReleaseMutex(write_to_file);
 					if (release_res == FALSE)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					// *****************************************************
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "PLAY_DECLINED"))
 				{
-					printf("Error: %s\n", param1);
-					// *****************************************************
-					wait_res = WaitForSingleObject(write_to_file, INFINITE);
-					if (wait_res != WAIT_OBJECT_0)
+					if (param1 != NULL)
 					{
-						ReportErrorAndEndProgram();
+						printf("Error: %s\n", param1);
+						// *****************************************************
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+						}
+						PrintToLogFile("Error: ", path);
+						PrintToLogFile(param1, path);
+						PrintToLogFile("\n", path);
+						release_res = ReleaseMutex(write_to_file);
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+						}
+						// *****************************************************
+					}
+					else
+					{
+						printf("Error: Invalid server message. Exiting.\n");
 						return -1;
 					}
-					PrintToLogFile("Error: ", path);
-					PrintToLogFile(param1, path);
-					PrintToLogFile("\n", path);
-					release_res = ReleaseMutex(write_to_file);
-					if (release_res == FALSE)
-					{
-						ReportErrorAndEndProgram();
-						return -1;
-					}
-					// *****************************************************
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_STARTED"))
 				{
@@ -302,38 +330,43 @@ static DWORD RecvDataThread(LPVOID lpParam)
 					if (wait_res != WAIT_OBJECT_0)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					PrintToLogFile("Game is on!\n", path);
 					release_res = ReleaseMutex(write_to_file);
 					if (release_res == FALSE)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					// *****************************************************
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "TURN_SWITCH"))
 				{
-					printf("%s's turn (%s)\n", param1, param2);
-					// *****************************************************
-					wait_res = WaitForSingleObject(write_to_file, INFINITE);
-					if (wait_res != WAIT_OBJECT_0)
+					if (param1 != NULL && param2 != NULL)
 					{
-						ReportErrorAndEndProgram();
+						printf("%s's turn (%s)\n", param1, param2);
+						// *****************************************************
+						wait_res = WaitForSingleObject(write_to_file, INFINITE);
+						if (wait_res != WAIT_OBJECT_0)
+						{
+							ReportErrorAndEndProgram();
+						}
+						PrintToLogFile(param1, path);
+						PrintToLogFile("'s turn (", path);
+						PrintToLogFile(param2, path);
+						PrintToLogFile(")\n", path);
+						release_res = ReleaseMutex(write_to_file);
+						if (release_res == FALSE)
+						{
+							ReportErrorAndEndProgram();
+						}
+						// *****************************************************
+					}
+					else
+					{
+						printf("Error: Invalid server message. Exiting.\n");
 						return -1;
 					}
-					PrintToLogFile(param1, path);
-					PrintToLogFile("'s turn (", path);
-					PrintToLogFile(param2, path);
-					PrintToLogFile(")\n", path);
-					release_res = ReleaseMutex(write_to_file);
-					if (release_res == FALSE)
-					{
-						ReportErrorAndEndProgram();
-						return -1;
-					}
-					// *****************************************************
+					
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "BOARD_VIEW"))
 				{
@@ -349,97 +382,94 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
 						release_res = ReleaseMutex(write_to_file);
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						// *****************************************************
 					}
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "GAME_ENDED"))
 				{
-					if (param1 == NULL || ((STRINGS_ARE_EQUAL(param1, "1")!=1) && param2 == NULL)) {
-						// *****************************************************
-						wait_res = WaitForSingleObject(write_to_file, INFINITE);
-						if (wait_res != WAIT_OBJECT_0)
-						{
-							ReportErrorAndEndProgram();
-							return -1;
-						}
-						PrintToLogFile("Custom message: GAME_ENDED was provided with wrong parms\n", path);
-						release_res = ReleaseMutex(write_to_file);
-						if (release_res == FALSE)
-						{
-							ReportErrorAndEndProgram();
-							return -1;
-						}
-						// *****************************************************
-						return -1;
-					}
-					else if (STRINGS_ARE_EQUAL(param1, "1"))
+					if (param1 != NULL)
 					{
+						if (STRINGS_ARE_EQUAL(param1, "1"))
+						{
 						printf("Game ended. Everybody wins!\n");
 						// *****************************************************
 						wait_res = WaitForSingleObject(write_to_file, INFINITE);
 						if (wait_res != WAIT_OBJECT_0)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						PrintToLogFile("Game ended. Everybody wins!\n", path);
 						release_res = ReleaseMutex(write_to_file);
 						if (release_res == FALSE)
 						{
 							ReportErrorAndEndProgram();
-							return -1;
 						}
 						// *****************************************************
 						return 0;
-					}
-					else if (STRINGS_ARE_EQUAL(param1, "0"))
-					{
-						printf("Game ended. The winner is %s!\n", param2);
-						// *****************************************************
-						wait_res = WaitForSingleObject(write_to_file, INFINITE);
-						if (wait_res != WAIT_OBJECT_0)
-						{
-							ReportErrorAndEndProgram();
-							return -1;
 						}
-						PrintToLogFile("Game ended. The winner is ", path);
-						PrintToLogFile(param2, path);
-						PrintToLogFile("!\n", path);
-						release_res = ReleaseMutex(write_to_file);
-						if (release_res == FALSE)
+						else if (STRINGS_ARE_EQUAL(param1, "0"))
 						{
-							ReportErrorAndEndProgram();
-							return -1;
+							if (param2 != NULL)
+							{
+									printf("Game ended. The winner is %s!\n", param2);
+									// *****************************************************
+									wait_res = WaitForSingleObject(write_to_file, INFINITE);
+									if (wait_res != WAIT_OBJECT_0)
+									{
+										ReportErrorAndEndProgram();
+									}
+									PrintToLogFile("Game ended. The winner is ", path);
+									PrintToLogFile(param2, path);
+									PrintToLogFile("!\n", path);
+									release_res = ReleaseMutex(write_to_file);
+									if (release_res == FALSE)
+									{
+										ReportErrorAndEndProgram();
+									}
+									// *****************************************************
+							}
+							else
+							{
+								printf("Error: Invalid server message. Exiting.\n");
+								// *****************************************************
+								wait_res = WaitForSingleObject(write_to_file, INFINITE);
+								if (wait_res != WAIT_OBJECT_0)
+								{
+									ReportErrorAndEndProgram();
+								}
+								PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
+								release_res = ReleaseMutex(write_to_file);
+								if (release_res == FALSE)
+								{
+									ReportErrorAndEndProgram();
+								}
+								// *****************************************************
+								return -1;
+							}
 						}
-						// *****************************************************
-						return 0;
 					}
-
+					
 				}
-				else {
+				else {   
 					printf("Error: Invalid server message. Exiting.\n");
 					// *****************************************************
 					wait_res = WaitForSingleObject(write_to_file, INFINITE);
 					if (wait_res != WAIT_OBJECT_0)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
 					release_res = ReleaseMutex(write_to_file);
 					if (release_res == FALSE)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					// *****************************************************
 					return -1;
@@ -453,14 +483,12 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				if (wait_res != WAIT_OBJECT_0)
 				{
 					ReportErrorAndEndProgram();
-					return -1;
 				}
 				PrintToLogFile("Error: Invalid server message. Exiting.\n", path);
 				release_res = ReleaseMutex(write_to_file);
 				if (release_res == FALSE)
 				{
 					ReportErrorAndEndProgram();
-					return -1;
 				}
 				// *****************************************************
 				return -1;
@@ -491,7 +519,6 @@ static DWORD MsgThread(LPVOID lpParam)
 	if (wait_res != WAIT_OBJECT_0) 
 	{
 		ReportErrorAndEndProgram();
-		return -1;
 	}
 	PrintToLogFile("Sent to server: ", parms->path);
 	PrintToLogFile(first_msg, parms->path);
@@ -499,7 +526,6 @@ static DWORD MsgThread(LPVOID lpParam)
 	if (release_res == FALSE) 
 	{
 		ReportErrorAndEndProgram();
-		return -1;
 	}
 	// *****************************************************
 	if (SendRes == TRNS_FAILED)
@@ -514,7 +540,6 @@ static DWORD MsgThread(LPVOID lpParam)
 		if (wait_res != WAIT_OBJECT_0) 
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 		
 		char *p_SendMsg = NULL;
@@ -526,7 +551,6 @@ static DWORD MsgThread(LPVOID lpParam)
 			if (wait_res != WAIT_OBJECT_0) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			PrintToLogFile("Sent to server: ", parms->path);
 			PrintToLogFile(p_SendMsg, parms->path);
@@ -534,7 +558,6 @@ static DWORD MsgThread(LPVOID lpParam)
 			if (release_res == FALSE) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			// *****************************************************
 
@@ -556,14 +579,12 @@ static DWORD MsgThread(LPVOID lpParam)
 					if (wait_res != WAIT_OBJECT_0)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					PrintToLogFile("Error: Game has already ended\n", parms->path);
 					release_res = ReleaseMutex(write_to_file);
 					if (release_res == FALSE)
 					{
 						ReportErrorAndEndProgram();
-						return -1;
 					}
 					// *****************************************************
 					return 0x555;
@@ -584,7 +605,6 @@ static DWORD MsgThread(LPVOID lpParam)
 			if (release_res == FALSE) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			return 0x555;
 		}
@@ -596,14 +616,12 @@ static DWORD MsgThread(LPVOID lpParam)
 			if (wait_res != WAIT_OBJECT_0) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			PrintToLogFile("Error: Illegal command\n", parms->path);
 			release_res = ReleaseMutex(write_to_file);
 			if (release_res == FALSE) 
 			{
 				ReportErrorAndEndProgram();
-				return -1;
 			}
 			// *****************************************************
 		}
@@ -616,7 +634,6 @@ static DWORD MsgThread(LPVOID lpParam)
 		if (release_res == FALSE) 
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 	}
 }
@@ -636,14 +653,12 @@ static DWORD InputThread(void)
 		if (release_res == FALSE) 
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 
 		wait_res = WaitForSingleObject(h_input, INFINITE);
 		if (wait_res != WAIT_OBJECT_0) 
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 	}
 	return 0x555;
@@ -656,9 +671,9 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 	HANDLE hThread[3];
 	MsgThreadParms *parms;
 	write_to_file = CreateMutex(
-		NULL,   /* default security attributes */
-		FALSE,	/* don't lock mutex immediately */
-		NULL); /* un-named */
+		NULL,   
+		FALSE,	
+		NULL); 
 	if (write_to_file == NULL)
 	{
 		CloseHandle(write_to_file);
@@ -714,7 +729,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		if (wait_res != WAIT_OBJECT_0) 
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 		PrintToLogFile("Failed connecting to server on ", path);
 		PrintToLogFile(server_ip, path);
@@ -725,7 +739,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		if (release_res == FALSE)
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 		// *****************************************************
 
@@ -739,7 +752,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		if (wait_res != WAIT_OBJECT_0)
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 		PrintToLogFile("Connected to server on ", path);
 		PrintToLogFile(server_ip, path);
@@ -750,7 +762,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 		if (release_res == FALSE)
 		{
 			ReportErrorAndEndProgram();
-			return -1;
 		}
 		// *****************************************************
 	}
@@ -880,10 +891,10 @@ int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a str
 	return 0;
 }
 //===================================================================================//
-static void ReportErrorAndEndProgram()
+static int ReportErrorAndEndProgram()
 {
 	printf("PrintToRePortFile error, ending program. Last Error = 0x%x\n", GetLastError());
-	return;
+	return -1;
 }
 //===================================================================================//
 int cnctnt(char *source1, char *source2, char **p_dest)

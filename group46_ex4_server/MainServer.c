@@ -1,21 +1,18 @@
 
-
+//===================================================================================//
 #define _CRT_SECURE_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+//===================================================================================//
 
 #include <stdio.h>
 #include <string.h>
 #include <winsock2.h>
 #include <stdlib.h>
-
 #include "SendRecvTools.h"
 #include "ServiceThread.h"
-
-
+//===================================================================================//
 #define MAX_LOOPS 400
-
-
-
+//===================================================================================//
 
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
 SOCKET ThreadInputs[NUM_OF_WORKER_THREADS];
@@ -38,7 +35,7 @@ HANDLE AcceptThreadHandle;
 
 DWORD AcceptConnections();
 int active = 0;
-
+//===================================================================================//
 int MainServer(char *path, char *server_ip, char *server_port_char)
 {
 	g_path = path;
@@ -92,8 +89,7 @@ int MainServer(char *path, char *server_ip, char *server_port_char)
 		 CloseHandle(AcceptThreadHandle);
 		 return 0;
 }
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 static int FindFirstUnusedThreadSlot()
 {
@@ -120,7 +116,7 @@ static int FindFirstUnusedThreadSlot()
 	return Ind;
 }
 
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
+//===================================================================================//
 
 static void CleanupWorkerThreads()
 {
@@ -148,7 +144,7 @@ static void CleanupWorkerThreads()
 		}
 	}
 }
-
+//===================================================================================//
 
 int PrintToLogFile(char *p_msg)  // input params: a pointer to a string and a path-string
 {
@@ -180,7 +176,7 @@ int PrintToLogFile(char *p_msg)  // input params: a pointer to a string and a pa
 	return 0;
 }
 
-
+//===================================================================================//
 
 DWORD AcceptConnections()
 {
@@ -212,17 +208,6 @@ DWORD AcceptConnections()
 		goto server_cleanup_1;
 	}
 
-	// Bind the socket.
-	/*
-	For a server to accept client connections, it must be bound to a network address within the system.
-	The following code demonstrates how to bind a socket that has already been created to an IP address
-	and port.
-	Client applications use the IP address and port to connect to the host network.
-	The sockaddr structure holds information regarding the address family, IP address, and port number.
-	sockaddr_in is a subset of sockaddr and is used for IP version 4 applications.
-	*/
-	// Create a sockaddr_in object and set its values.
-	// Declare variables
 
 	Address = inet_addr(server_ip);
 	if (Address == INADDR_NONE)
@@ -322,3 +307,5 @@ server_cleanup_1:
 		printf("Failed to close Winsocket, error %ld. Ending program.\n", WSAGetLastError());
 	return 0;
 }
+
+//===================================================================================//

@@ -13,6 +13,7 @@ Anton Chaplianka          310224209
 #include <stdio.h>
 #include <string.h>
 #include <winsock2.h>
+#include "MainServer.h"
 #include "SendRecvTools.h"
 #include "ServiceThread.h"
 #include "BoardTools.h"
@@ -33,7 +34,9 @@ int state2 = 0;
 HANDLE ThreadSenRecHandles[2];
 int user1_disconected;
 int user2_disconected;
+
 //===================================================================================//
+
 DWORD ServiceThread(player_params *p_player_params)
 {
 
@@ -288,8 +291,6 @@ DWORD ServiceThread(player_params *p_player_params)
 					{
 						closesocket(*t_socket);
 					}
-					//TerminateThread(ThreadSenRecHandles[0], 0x555);
-					//TerminateThread(ThreadSenRecHandles[1], 0x555);
 					return 0;
 				}
 			}
@@ -333,21 +334,6 @@ DWORD ServiceThread(player_params *p_player_params)
 			return 1;
 		}
 	}
-
-
-	//DWORD Res = WaitForSingleObject(ThreadSenRecHandles[player_num],INFINITE);
-
-	//if (Res == WAIT_OBJECT_0) // this thread finished running
-	//{
-	//	CloseHandle(ThreadSenRecHandles[player_num]);
-	//	ThreadSenRecHandles[player_num] = NULL;
-	//}
-	//else
-	//{
-	//	return 1;
-	//}
-	//ThreadHandles[player_num] = NULL;
-	//printf("Conversation ended.\n");
 	return 0;
 }
 //===================================================================================//
@@ -746,5 +732,9 @@ TransferResult_t board_view_and_turn_switch(SOCKET *t_socket, int last_player_nu
 		}
 		return SendRes;
 	}
+	else {
+		return -1;
+	}
+
 }
 //===================================================================================//

@@ -84,8 +84,16 @@ TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd);
 
 //===================================================================================//
 
+/* ParseMessage() Recieves:
+-----------
+AcceptedStr - The input message of type string in the format: "<Message type>:<param1>;<param2>;<param3>\n;"
+The function parses AcceptedStr and preaks it  down to it's elemets, then produces pointers to strings (output params):
+MessageType, param1, param2, param3 (respectively)
+
+NOTICE!: The number of parameters is not constant! the function is prepared to revieve up to 3 parameters but can handle less.*/
 int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3);
 
+/*find_char()  - finds the location in <string> of the in first char 'n' that satisfies that for every char <c> {'n' == <c>}, beginning from the index <start_from> */
 int find_char(char *string, char c, int start_from);
 
 #endif // SEND_RECV_TOOLS_H
