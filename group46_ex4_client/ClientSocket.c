@@ -6,18 +6,15 @@ Exercise 4
 Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
-
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-
+//===================================================================================//
 #include <winsock2.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SocketShared.h"
 #include "SendRecvTools.h"
 #include "ClientSocket.h"
 #include "BoardTools.h"
-
 //===================================================================================//
 char SendStr[256];
 int gnrt_msg_rslt;
@@ -30,7 +27,6 @@ static char *send_char;
 static DWORD wait_res;
 static BOOL release_res;
 //===================================================================================//
-
 //Reading data coming from the server
 static DWORD RecvDataThread(LPVOID lpParam)
 {
@@ -129,13 +125,21 @@ static DWORD RecvDataThread(LPVOID lpParam)
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "NEW_USER_ACCEPTED"))
 				{
-					printf("Player accepted, you play %s, number of current players: %s\n", param1, param2);
+					if (param1 != NULL && param2 != NULL)
+					{
+						printf("Player accepted, you play %s, number of current players: %s\n", param1, param2);
+					}
+					else 
+					{
+						printf("Error: Invalid server message. Exiting.\n");
+						return -1;
+					}
 				}
 				else if (STRINGS_ARE_EQUAL(MSG_type, "USER_LIST_REPLY"))
 				{
 					if (param2 == NULL) 
 					{
-						printf("Players: %s\n", param1);
+						printf("Players: %s (x)\n", param1);
 						// *****************************************************
 						wait_res = WaitForSingleObject(write_to_file, INFINITE);
 						if (wait_res != WAIT_OBJECT_0)
@@ -145,7 +149,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						}
 						PrintToLogFile("Players: ", path);
 						PrintToLogFile(param1, path);
-						PrintToLogFile("\n", path);
+						PrintToLogFile(" (x)\n", path);
 						release_res = ReleaseMutex(write_to_file);
 						if (release_res == FALSE)
 						{
@@ -155,7 +159,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						// *****************************************************
 					}
 					else {
-						printf("Players: %s, %s\n", param1, param2);
+						printf("Players: %s (x), %s (o)\n", param1, param2);
 						// *****************************************************
 						wait_res = WaitForSingleObject(write_to_file, INFINITE);
 						if (wait_res != WAIT_OBJECT_0)
@@ -165,9 +169,9 @@ static DWORD RecvDataThread(LPVOID lpParam)
 						}
 						PrintToLogFile("Players: ", path);
 						PrintToLogFile(param1, path);
-						PrintToLogFile(", ", path);
+						PrintToLogFile(" (x) , ", path);
 						PrintToLogFile(param2, path);
-						PrintToLogFile("\n", path);
+						PrintToLogFile(" (o)\n", path);
 						release_res = ReleaseMutex(write_to_file);
 						if (release_res == FALSE)
 						{
@@ -468,9 +472,7 @@ static DWORD RecvDataThread(LPVOID lpParam)
 
 	return 0;
 }
-
 //===================================================================================//
-
 // Handling messeges: getting the input from the user, generating the right messege and sending it to the server
 static DWORD MsgThread(LPVOID lpParam)
 {
@@ -535,7 +537,14 @@ static DWORD MsgThread(LPVOID lpParam)
 				return -1;
 			}
 			// *****************************************************
+
+
+
 			SendRes = SendString(p_SendMsg, m_socket);
+
+
+
+
 			if (SendRes == TRNS_FAILED)
 			{
 				// Takes care of the requirement that the client prints an error if the user asks for the state when the game had already finished
@@ -611,9 +620,7 @@ static DWORD MsgThread(LPVOID lpParam)
 		}
 	}
 }
-
 //===================================================================================//
-
 // Handles getting the input from the user
 static DWORD InputThread(void)
 {
@@ -641,9 +648,7 @@ static DWORD InputThread(void)
 	}
 	return 0x555;
 }
-
 //===================================================================================//
-
 int MainClient(char *path, char *server_ip, char *server_port_char, char *username)
 {
 
@@ -844,7 +849,6 @@ int MainClient(char *path, char *server_ip, char *server_port_char, char *userna
 
 	return 0;
 }
-
 //===================================================================================//
 int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a string and a path-string
 {
@@ -875,14 +879,12 @@ int PrintToLogFile(char *p_msg, char *path)  // input params: a pointer to a str
 	}
 	return 0;
 }
-
 //===================================================================================//
 static void ReportErrorAndEndProgram()
 {
 	printf("PrintToRePortFile error, ending program. Last Error = 0x%x\n", GetLastError());
 	return;
 }
-
 //===================================================================================//
 int cnctnt(char *source1, char *source2, char **p_dest)
 {
@@ -905,98 +907,6 @@ int cnctnt(char *source1, char *source2, char **p_dest)
 	*p_dest = dest;
 	return 0;
 }
-
-//===================================================================================//
-int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3) {
-	int message_type_end_place = find_char(AcceptedStr, ':', 0);
-	int end_of_message = find_char(AcceptedStr, '\n', 0);
-	//printf("AcceptedStr %s\n", AcceptedStr);
-	//printf("end_of_message %d\n", end_of_message);
-	//printf("message_type_end_place  %d\n", message_type_end_place);
-
-	if ((end_of_message == -1) || ((message_type_end_place != -1) && (message_type_end_place > end_of_message))) {
-		//check the messeage string fits the protocol
-		return -1;
-	}
-	if (message_type_end_place == -1) {//no params in message
-		message_type_end_place = end_of_message;
-	}
-	char *c_MessageType = malloc(sizeof(char)*message_type_end_place);
-	int i;
-	for (i = 0; i < message_type_end_place; i++) {
-		c_MessageType[i] = AcceptedStr[i];
-	}
-	c_MessageType[i] = '\0';
-	*MessageType = c_MessageType;
-	if (find_char(AcceptedStr, ':', 0) == -1) {//no params in message
-		return 0;
-	}
-	char *c_param1;
-	int len_of_param1;
-	int param1_end_place = find_char(AcceptedStr, ';', 0);
-	if (param1_end_place == -1) {//only 1 param in the msg
-		param1_end_place = find_char(AcceptedStr, '\n', 0);
-	}
-	len_of_param1 = param1_end_place - message_type_end_place;
-	c_param1 = malloc((len_of_param1) * sizeof(char));
-	for (i = message_type_end_place + 1; i < param1_end_place; i++) {
-		c_param1[i - message_type_end_place - 1] = AcceptedStr[i];
-	}
-	c_param1[i - message_type_end_place - 1] = '\0';
-	*param1 = c_param1;
-	if (find_char(AcceptedStr, ';', 0) == -1) {
-		return 0;
-	}
-	char *c_param2;
-	int len_of_param2;
-	int param2_end_place = find_char(AcceptedStr, ';', param1_end_place + 1);
-	if (param2_end_place == -1) {
-		param2_end_place = find_char(AcceptedStr, '\n', 0);
-	}
-	len_of_param2 = param2_end_place - param1_end_place;
-	c_param2 = malloc((len_of_param2) * sizeof(char));
-	for (i = param1_end_place + 1; i < param2_end_place; i++) {
-		c_param2[i - param1_end_place - 1] = AcceptedStr[i];
-	}
-	c_param2[i - param1_end_place - 1] = '\0';
-	*param2 = c_param2;
-	if (find_char(AcceptedStr, ';', param1_end_place + 1) == -1) {
-		return 0;
-	}
-	char *c_param3;
-	int len_of_param3;
-	int param3_end_place = find_char(AcceptedStr, ';', param2_end_place + 1);
-	if (param3_end_place == -1) {
-		param3_end_place = find_char(AcceptedStr, '\n', 0);
-	}
-	len_of_param3 = param3_end_place - param2_end_place;
-	c_param3 = malloc((len_of_param3) * sizeof(char));
-	for (i = param2_end_place + 1; i < param3_end_place; i++) {
-		c_param3[i - param2_end_place - 1] = AcceptedStr[i];
-	}
-	c_param3[i - param2_end_place - 1] = '\0';
-	*param3 = c_param3;
-	return 0;
-}
-
-//===================================================================================//
-int find_char(char *string, char c, int start_from) {
-	int i = start_from;
-	int found = 0;
-	while (!found)
-	{
-		if (string[i] == c) {
-			found = 1;
-			return i;
-		}
-		if (i > strlen(string)) {
-			return -1;
-		}
-		i++;
-	}
-	return -1;
-}
-
 //===================================================================================//
 int generate_msg(char *input, char **output)
 {

@@ -7,13 +7,15 @@ Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
 
-#ifndef SOCKET_SHARED_H
-#define SOCKET_SHARED_H
-
-//===================================================================================//
-
+#ifndef MAINSERVER_H
+#define MAINSERVER_H
 
 
 //===================================================================================//
 
-#endif // SOCKET_SHARED_H
+int MainServer(char *path, char *server_ip, char *server_port_char);
+int PrintToLogFile(char *p_msg);
+//===================================================================================//
+
+
+#endif // MAINSERVER_H

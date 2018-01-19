@@ -1,2 +1,1 @@
-Connected to server on 192.168.1.2:2345
-Sent to server: NEW_USER_REQUEST:anton
+Failed connecting to server on 192.168.1.2:2345. Exiting.

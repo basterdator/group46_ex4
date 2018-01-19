@@ -24,21 +24,30 @@
     <ClCompile Include="server_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ServerSocket.c">
+    <ClCompile Include="..\Shared\SendRecvTools.c">
+      <Filter>Shared Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MainServer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Shared\SendRecvTools.c">
+    <ClCompile Include="ServiceThread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\BoardTools.c">
       <Filter>Shared Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ServerSocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\SocketShared.h">
+    <ClInclude Include="..\Shared\SendRecvTools.h">
       <Filter>Shared Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\Shared\SendRecvTools.h">
+    <ClInclude Include="MainServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\BoardTools.h">
       <Filter>Shared Headers</Filter>
     </ClInclude>
   </ItemGroup>

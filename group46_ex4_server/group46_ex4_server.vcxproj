@@ -112,14 +112,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Shared\BoardTools.c" />
     <ClCompile Include="..\Shared\SendRecvTools.c" />
-    <ClCompile Include="ServerSocket.c" />
+    <ClCompile Include="MainServer.c" />
     <ClCompile Include="server_main.c" />
+    <ClCompile Include="ServiceThread.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Shared\BoardTools.h" />
     <ClInclude Include="..\Shared\SendRecvTools.h" />
-    <ClInclude Include="..\Shared\SocketShared.h" />
-    <ClInclude Include="ServerSocket.h" />
+    <ClInclude Include="MainServer.h" />
+    <ClInclude Include="ServiceThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,24 +8,12 @@ Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
 
-
 #include "ClientSocket.h"
 #include "BoardTools.h"
 //===================================================================================//
 
 int main(int argc, char *argv[])
 {	
-	//char mark[] = "x";
-	//char x[] = "1";
-	//char *p_x = &x;
-	//char y[] = "2";
-	//char *p_y = &y;
-	//char board[] = "000000000";
-	//char *p_board = &board;
-	//printf("%s\n", board);
-	//mark_board(board, x[0], y[0], 'x', &p_board);
-	//printf("%s\n", board);
-
 	int res = 0;
 	if (argc == 5)
 	{

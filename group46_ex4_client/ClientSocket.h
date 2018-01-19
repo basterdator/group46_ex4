@@ -43,10 +43,6 @@ The function points p_dest to a string which is a concatenation of source1 and s
 returns 0 if the operation was successful and -1 o.w. */
 int cnctnt(char *source1, char *source2, char **p_dest);
 
-/* ADD COMMENTS */
-int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3);
-/* ADD COMMENTS */
-int find_char(char *string, char c, int start_from);
 
 /* generate_msg() gets the parameters: 
 --------------------------------------------------

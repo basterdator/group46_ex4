@@ -7,16 +7,16 @@ Uri Cohen                 302825807
 Anton Chaplianka          310224209
 ============================================== */
 
-#ifndef SOCKET_SEND_RECV_TOOLS_H
-#define SOCKET_SEND_RECV_TOOLS_H
-
+#ifndef SEND_RECV_TOOLS_H
+#define SEND_RECV_TOOLS_H
 //===================================================================================//
-
+#include <string.h>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
 //===================================================================================//
-
+#define STRINGS_ARE_EQUAL( Str1, Str2 ) ( strcmp( (Str1), (Str2) ) == 0 )
+//===================================================================================//
 typedef enum { TRNS_FAILED, TRNS_DISCONNECTED, TRNS_SUCCEEDED } TransferResult_t;
 
 /**
@@ -84,4 +84,8 @@ TransferResult_t ReceiveString(char** OutputStrPtr, SOCKET sd);
 
 //===================================================================================//
 
-#endif // SOCKET_SEND_RECV_TOOLS_H
+int ParseMessage(char *AcceptedStr, char **MessageType, char **param1, char **param2, char **param3);
+
+int find_char(char *string, char c, int start_from);
+
+#endif // SEND_RECV_TOOLS_H
